@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Light and Shadow Demo</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #f2f2f2;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <script>
+    const canvas = document.getElementById("scene");
+    const ctx = canvas.getContext("2d");
+    let width, height;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const circle = { x: width / 2, y: height / 2, r: 50 };
+    let mouse = { x: 0, y: 0 };
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Light source
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffaa00";
+      ctx.fill();
+
+      // Calculate direction
+      const dx = circle.x - mouse.x;
+      const dy = circle.y - mouse.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len;
+      const uy = dy / len;
+
+      // Draw shadow (simple projection)
+      const shadowLength = 100;
+      const sx = circle.x + ux * shadowLength;
+      const sy = circle.y + uy * shadowLength;
+
+      ctx.beginPath();
+      ctx.moveTo(circle.x + circle.r * uy, circle.y - circle.r * ux);
+      ctx.lineTo(sx + circle.r * uy, sy - circle.r * ux);
+      ctx.lineTo(sx - circle.r * uy, sy + circle.r * ux);
+      ctx.lineTo(circle.x - circle.r * uy, circle.y + circle.r * ux);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.fill();
+
+      // Draw main circle
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2);
+      ctx.fillStyle = "#3366cc";
+      ctx.fill();
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
